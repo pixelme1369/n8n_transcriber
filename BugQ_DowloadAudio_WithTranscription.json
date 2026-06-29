@@ -178,7 +178,7 @@
       "typeVersion": 1.1,
       "position": [1376, -352],
       "id": "69d44dfc-8c50-42f8-aead-2af283720ae2",
-      "name": "Read/Write Files Google drive",
+      "name": "Write Audio to Disk",
       "onError": "continueRegularOutput"
     },
     {
@@ -327,24 +327,24 @@
         "duplicateItem": false,
         "assignments": {
           "assignments": [
-            {"id": "aa01", "name": "call_key",                 "value": "={{ $('Read/Write Files Google drive').item.json.caller_code }}",                                                                                                                      "type": "string"},
-            {"id": "aa02", "name": "call_date",                "value": "={{ $('Read/Write Files Google drive').item.json.call_date }}",                                                                                                                        "type": "string"},
-            {"id": "aa03", "name": "direction",                "value": "={{ $('Read/Write Files Google drive').item.json.direction }}",                                                                                                                        "type": "string"},
-            {"id": "aa04", "name": "phone_number_dialed",      "value": "={{ $('Read/Write Files Google drive').item.json.phone_number_dialed }}",                                                                                                               "type": "string"},
-            {"id": "aa05", "name": "status",                   "value": "={{ $('Read/Write Files Google drive').item.json.status }}",                                                                                                                           "type": "string"},
-            {"id": "aa06", "name": "user_id",                  "value": "={{ $('Read/Write Files Google drive').item.json.user }}",                                                                                                                             "type": "string"},
-            {"id": "aa07", "name": "agent_name",               "value": "={{ $('Read/Write Files Google drive').item.json.full_name }}",                                                                                                                        "type": "string"},
-            {"id": "aa08", "name": "campaign_id",              "value": "={{ $('Read/Write Files Google drive').item.json.campaign_id }}",                                                                                                                      "type": "string"},
-            {"id": "aa09", "name": "lead_id",                  "value": "={{ $('Read/Write Files Google drive').item.json.lead_id }}",                                                                                                                          "type": "string"},
-            {"id": "aa10", "name": "length_in_sec",            "value": "={{ parseInt($('Read/Write Files Google drive').item.json.length_in_sec) || null }}",                                                                                                  "type": "number"},
-            {"id": "aa11", "name": "talk_sec",                 "value": "={{ parseInt($('Read/Write Files Google drive').item.json.talk_sec) || null }}",                                                                                                       "type": "number"},
-            {"id": "aa12", "name": "dispo_sec",                "value": "={{ parseInt($('Read/Write Files Google drive').item.json.dispo_sec) || null }}",                                                                                                      "type": "number"},
-            {"id": "aa13", "name": "dead_sec",                 "value": "={{ parseInt($('Read/Write Files Google drive').item.json.dead_sec) || null }}",                                                                                                       "type": "number"},
-            {"id": "aa14", "name": "crm_status",               "value": "={{ $('Read/Write Files Google drive').item.json['CRM Status'] || null }}",                                                                                                           "type": "string"},
-            {"id": "aa15", "name": "enrolled_debt",            "value": "={{ parseFloat(String($('Read/Write Files Google drive').item.json['Enrolled Debt'] || '').replace(/[$,\\s]/g, '')) || null }}",                                                      "type": "number"},
-            {"id": "aa16", "name": "last_credit_pulled_date",  "value": "={{ $('Read/Write Files Google drive').item.json['Last Credit Pulled Date'] || $('Read/Write Files Google drive').item.json.last_credit_pulled_date || null }}",                      "type": "string"},
-            {"id": "aa17", "name": "cordoba_enrolled_date",    "value": "={{ $('Read/Write Files Google drive').item.json['Cordoba Enrolled Date'] || $('Read/Write Files Google drive').item.json.cordoba_enrolled_date || null }}",                          "type": "string"},
-            {"id": "aa18", "name": "recording_url",            "value": "={{ $('Read/Write Files Google drive').item.json.recording_location || null }}",                                                                                                       "type": "string"},
+            {"id": "aa01", "name": "call_key",                 "value": "={{ $('Write Audio to Disk').item.json.caller_code }}",                                                                                                                      "type": "string"},
+            {"id": "aa02", "name": "call_date",                "value": "={{ $('Write Audio to Disk').item.json.call_date }}",                                                                                                                        "type": "string"},
+            {"id": "aa03", "name": "direction",                "value": "={{ $('Write Audio to Disk').item.json.direction }}",                                                                                                                        "type": "string"},
+            {"id": "aa04", "name": "phone_number_dialed",      "value": "={{ $('Write Audio to Disk').item.json.phone_number_dialed }}",                                                                                                               "type": "string"},
+            {"id": "aa05", "name": "status",                   "value": "={{ $('Write Audio to Disk').item.json.status }}",                                                                                                                           "type": "string"},
+            {"id": "aa06", "name": "user_id",                  "value": "={{ $('Write Audio to Disk').item.json.user }}",                                                                                                                             "type": "string"},
+            {"id": "aa07", "name": "agent_name",               "value": "={{ $('Write Audio to Disk').item.json.full_name }}",                                                                                                                        "type": "string"},
+            {"id": "aa08", "name": "campaign_id",              "value": "={{ $('Write Audio to Disk').item.json.campaign_id }}",                                                                                                                      "type": "string"},
+            {"id": "aa09", "name": "lead_id",                  "value": "={{ $('Write Audio to Disk').item.json.lead_id }}",                                                                                                                          "type": "string"},
+            {"id": "aa10", "name": "length_in_sec",            "value": "={{ parseInt($('Write Audio to Disk').item.json.length_in_sec) || null }}",                                                                                                  "type": "number"},
+            {"id": "aa11", "name": "talk_sec",                 "value": "={{ parseInt($('Write Audio to Disk').item.json.talk_sec) || null }}",                                                                                                       "type": "number"},
+            {"id": "aa12", "name": "dispo_sec",                "value": "={{ parseInt($('Write Audio to Disk').item.json.dispo_sec) || null }}",                                                                                                      "type": "number"},
+            {"id": "aa13", "name": "dead_sec",                 "value": "={{ parseInt($('Write Audio to Disk').item.json.dead_sec) || null }}",                                                                                                       "type": "number"},
+            {"id": "aa14", "name": "crm_status",               "value": "={{ $('Write Audio to Disk').item.json['CRM Status'] || null }}",                                                                                                           "type": "string"},
+            {"id": "aa15", "name": "enrolled_debt",            "value": "={{ parseFloat(String($('Write Audio to Disk').item.json['Enrolled Debt'] || '').replace(/[$,\\s]/g, '')) || null }}",                                                      "type": "number"},
+            {"id": "aa16", "name": "last_credit_pulled_date",  "value": "={{ $('Write Audio to Disk').item.json['Last Credit Pulled Date'] || $('Write Audio to Disk').item.json.last_credit_pulled_date || null }}",                      "type": "string"},
+            {"id": "aa17", "name": "cordoba_enrolled_date",    "value": "={{ $('Write Audio to Disk').item.json['Cordoba Enrolled Date'] || $('Write Audio to Disk').item.json.cordoba_enrolled_date || null }}",                          "type": "string"},
+            {"id": "aa18", "name": "recording_url",            "value": "={{ $('Write Audio to Disk').item.json.recording_location || null }}",                                                                                                       "type": "string"},
             {"id": "aa19", "name": "assemblyai_transcript_id", "value": "={{ $json.id || null }}",                                                                                                                                                              "type": "string"},
             {"id": "aa20", "name": "transcription_status",     "value": "={{ $json.status || 'error' }}",                                                                                                                                                      "type": "string"},
             {"id": "aa21", "name": "transcript_text",          "value": "={{ $json.text || null }}",                                                                                                                                                            "type": "string"},
@@ -470,14 +470,14 @@
       "main": [
         [
           {
-            "node": "Read/Write Files Google drive",
+            "node": "Write Audio to Disk",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Read/Write Files Google drive": {
+    "Write Audio to Disk": {
       "main": [
         [
           {
