@@ -252,18 +252,54 @@
     },
     {
       "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "assignments": {
+          "assignments": [
+            {"id": "eb01", "name": "transcript_id",           "value": "={{ $json.id }}",                                                                                                                                                             "type": "string"},
+            {"id": "eb02", "name": "bq_caller_code",          "value": "={{ $('Read/Write Files').item.json.caller_code }}",                                                                                                                         "type": "string"},
+            {"id": "eb03", "name": "bq_call_date",            "value": "={{ $('Read/Write Files').item.json.call_date }}",                                                                                                                           "type": "string"},
+            {"id": "eb04", "name": "bq_direction",            "value": "={{ $('Read/Write Files').item.json.direction }}",                                                                                                                           "type": "string"},
+            {"id": "eb05", "name": "bq_phone_number_dialed",  "value": "={{ $('Read/Write Files').item.json.phone_number_dialed }}",                                                                                                                  "type": "string"},
+            {"id": "eb06", "name": "bq_status",               "value": "={{ $('Read/Write Files').item.json.status }}",                                                                                                                              "type": "string"},
+            {"id": "eb07", "name": "bq_user",                 "value": "={{ $('Read/Write Files').item.json.user }}",                                                                                                                                "type": "string"},
+            {"id": "eb08", "name": "bq_full_name",            "value": "={{ $('Read/Write Files').item.json.full_name }}",                                                                                                                           "type": "string"},
+            {"id": "eb09", "name": "bq_campaign_id",          "value": "={{ $('Read/Write Files').item.json.campaign_id }}",                                                                                                                         "type": "string"},
+            {"id": "eb10", "name": "bq_lead_id",              "value": "={{ $('Read/Write Files').item.json.lead_id }}",                                                                                                                             "type": "string"},
+            {"id": "eb11", "name": "bq_length_in_sec",        "value": "={{ parseInt($('Read/Write Files').item.json.length_in_sec) || null }}",                                                                                                     "type": "number"},
+            {"id": "eb12", "name": "bq_talk_sec",             "value": "={{ parseInt($('Read/Write Files').item.json.talk_sec) || null }}",                                                                                                          "type": "number"},
+            {"id": "eb13", "name": "bq_dispo_sec",            "value": "={{ parseInt($('Read/Write Files').item.json.dispo_sec) || null }}",                                                                                                         "type": "number"},
+            {"id": "eb14", "name": "bq_dead_sec",             "value": "={{ parseInt($('Read/Write Files').item.json.dead_sec) || null }}",                                                                                                          "type": "number"},
+            {"id": "eb15", "name": "bq_crm_status",           "value": "={{ $('Read/Write Files').item.json['CRM Status'] || null }}",                                                                                                               "type": "string"},
+            {"id": "eb16", "name": "bq_enrolled_debt",        "value": "={{ parseFloat(String($('Read/Write Files').item.json['Enrolled Debt'] || '').replace(/[$,\\s]/g, '')) || null }}",                                                         "type": "number"},
+            {"id": "eb17", "name": "bq_last_credit_pulled",   "value": "={{ $('Read/Write Files').item.json['Last Credit Pulled Date'] || $('Read/Write Files').item.json.last_credit_pulled_date || null }}",                                      "type": "string"},
+            {"id": "eb18", "name": "bq_cordoba_enrolled",     "value": "={{ $('Read/Write Files').item.json['Cordoba Enrolled Date'] || $('Read/Write Files').item.json.cordoba_enrolled_date || null }}",                                          "type": "string"},
+            {"id": "eb19", "name": "bq_recording_url",        "value": "={{ $('Read/Write Files').item.json.recording_location || null }}",                                                                                                          "type": "string"}
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [2144, -352],
+      "id": "d8e9f0a1-b2c3-d4e5-f677-b8c9d0e1f2a3",
+      "name": "Embed BQ Data"
+    },
+    {
+      "parameters": {
         "amount": 30
       },
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
-      "position": [2144, -352],
+      "position": [2400, -352],
       "id": "e3f4a5b6-c7d8-e9f0-a122-c3d4e5f6a7b8",
       "name": "Wait - Poll AssemblyAI",
       "webhookId": "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6"
     },
     {
       "parameters": {
-        "url": "={{ 'https://api.assemblyai.com/v2/transcript/' + ($json.id || $('Submit Transcript Job').item.json.id) }}",
+        "url": "={{ 'https://api.assemblyai.com/v2/transcript/' + ($json.id || $('Embed BQ Data').item.json.transcript_id) }}",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -277,7 +313,7 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
-      "position": [2400, -352],
+      "position": [2656, -352],
       "id": "f4a5b6c7-d8e9-f0a1-b233-d4e5f6a7b8c9",
       "name": "Get Transcript Status",
       "onError": "continueRegularOutput"
@@ -327,24 +363,24 @@
         "duplicateItem": false,
         "assignments": {
           "assignments": [
-            {"id": "aa01", "name": "call_key",                 "value": "={{ $('Read/Write Files').item.json.caller_code }}",                                                                                                                      "type": "string"},
-            {"id": "aa02", "name": "call_date",                "value": "={{ $('Read/Write Files').item.json.call_date }}",                                                                                                                        "type": "string"},
-            {"id": "aa03", "name": "direction",                "value": "={{ $('Read/Write Files').item.json.direction }}",                                                                                                                        "type": "string"},
-            {"id": "aa04", "name": "phone_number_dialed",      "value": "={{ $('Read/Write Files').item.json.phone_number_dialed }}",                                                                                                               "type": "string"},
-            {"id": "aa05", "name": "status",                   "value": "={{ $('Read/Write Files').item.json.status }}",                                                                                                                           "type": "string"},
-            {"id": "aa06", "name": "user_id",                  "value": "={{ $('Read/Write Files').item.json.user }}",                                                                                                                             "type": "string"},
-            {"id": "aa07", "name": "agent_name",               "value": "={{ $('Read/Write Files').item.json.full_name }}",                                                                                                                        "type": "string"},
-            {"id": "aa08", "name": "campaign_id",              "value": "={{ $('Read/Write Files').item.json.campaign_id }}",                                                                                                                      "type": "string"},
-            {"id": "aa09", "name": "lead_id",                  "value": "={{ $('Read/Write Files').item.json.lead_id }}",                                                                                                                          "type": "string"},
-            {"id": "aa10", "name": "length_in_sec",            "value": "={{ parseInt($('Read/Write Files').item.json.length_in_sec) || null }}",                                                                                                  "type": "number"},
-            {"id": "aa11", "name": "talk_sec",                 "value": "={{ parseInt($('Read/Write Files').item.json.talk_sec) || null }}",                                                                                                       "type": "number"},
-            {"id": "aa12", "name": "dispo_sec",                "value": "={{ parseInt($('Read/Write Files').item.json.dispo_sec) || null }}",                                                                                                      "type": "number"},
-            {"id": "aa13", "name": "dead_sec",                 "value": "={{ parseInt($('Read/Write Files').item.json.dead_sec) || null }}",                                                                                                       "type": "number"},
-            {"id": "aa14", "name": "crm_status",               "value": "={{ $('Read/Write Files').item.json['CRM Status'] || null }}",                                                                                                           "type": "string"},
-            {"id": "aa15", "name": "enrolled_debt",            "value": "={{ parseFloat(String($('Read/Write Files').item.json['Enrolled Debt'] || '').replace(/[$,\\s]/g, '')) || null }}",                                                      "type": "number"},
-            {"id": "aa16", "name": "last_credit_pulled_date",  "value": "={{ $('Read/Write Files').item.json['Last Credit Pulled Date'] || $('Read/Write Files').item.json.last_credit_pulled_date || null }}",                      "type": "string"},
-            {"id": "aa17", "name": "cordoba_enrolled_date",    "value": "={{ $('Read/Write Files').item.json['Cordoba Enrolled Date'] || $('Read/Write Files').item.json.cordoba_enrolled_date || null }}",                          "type": "string"},
-            {"id": "aa18", "name": "recording_url",            "value": "={{ $('Read/Write Files').item.json.recording_location || null }}",                                                                                                       "type": "string"},
+            {"id": "aa01", "name": "call_key",                 "value": "={{ $('Embed BQ Data').item.json.bq_caller_code }}",            "type": "string"},
+            {"id": "aa02", "name": "call_date",                "value": "={{ $('Embed BQ Data').item.json.bq_call_date }}",            "type": "string"},
+            {"id": "aa03", "name": "direction",                "value": "={{ $('Embed BQ Data').item.json.bq_direction }}",            "type": "string"},
+            {"id": "aa04", "name": "phone_number_dialed",      "value": "={{ $('Embed BQ Data').item.json.bq_phone_number_dialed }}", "type": "string"},
+            {"id": "aa05", "name": "status",                   "value": "={{ $('Embed BQ Data').item.json.bq_status }}",              "type": "string"},
+            {"id": "aa06", "name": "user_id",                  "value": "={{ $('Embed BQ Data').item.json.bq_user }}",                "type": "string"},
+            {"id": "aa07", "name": "agent_name",               "value": "={{ $('Embed BQ Data').item.json.bq_full_name }}",           "type": "string"},
+            {"id": "aa08", "name": "campaign_id",              "value": "={{ $('Embed BQ Data').item.json.bq_campaign_id }}",         "type": "string"},
+            {"id": "aa09", "name": "lead_id",                  "value": "={{ $('Embed BQ Data').item.json.bq_lead_id }}",             "type": "string"},
+            {"id": "aa10", "name": "length_in_sec",            "value": "={{ $('Embed BQ Data').item.json.bq_length_in_sec }}",       "type": "number"},
+            {"id": "aa11", "name": "talk_sec",                 "value": "={{ $('Embed BQ Data').item.json.bq_talk_sec }}",            "type": "number"},
+            {"id": "aa12", "name": "dispo_sec",                "value": "={{ $('Embed BQ Data').item.json.bq_dispo_sec }}",           "type": "number"},
+            {"id": "aa13", "name": "dead_sec",                 "value": "={{ $('Embed BQ Data').item.json.bq_dead_sec }}",            "type": "number"},
+            {"id": "aa14", "name": "crm_status",               "value": "={{ $('Embed BQ Data').item.json.bq_crm_status }}",          "type": "string"},
+            {"id": "aa15", "name": "enrolled_debt",            "value": "={{ $('Embed BQ Data').item.json.bq_enrolled_debt }}",       "type": "number"},
+            {"id": "aa16", "name": "last_credit_pulled_date",  "value": "={{ $('Embed BQ Data').item.json.bq_last_credit_pulled }}", "type": "string"},
+            {"id": "aa17", "name": "cordoba_enrolled_date",    "value": "={{ $('Embed BQ Data').item.json.bq_cordoba_enrolled }}",    "type": "string"},
+            {"id": "aa18", "name": "recording_url",            "value": "={{ $('Embed BQ Data').item.json.bq_recording_url }}",       "type": "string"},
             {"id": "aa19", "name": "assemblyai_transcript_id", "value": "={{ $json.id || null }}",                                                                                                                                                              "type": "string"},
             {"id": "aa20", "name": "transcription_status",     "value": "={{ $json.status || 'error' }}",                                                                                                                                                      "type": "string"},
             {"id": "aa21", "name": "transcript_text",          "value": "={{ $json.text || null }}",                                                                                                                                                            "type": "string"},
@@ -356,7 +392,7 @@
       },
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
-      "position": [2912, -352],
+      "position": [3168, -352],
       "id": "b6c7d8e9-f0a1-b2c3-d455-f6a7b8c9d0e1",
       "name": "Prepare Supabase Payload"
     },
@@ -392,7 +428,7 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
-      "position": [3168, -352],
+      "position": [3424, -352],
       "id": "c7d8e9f0-a1b2-c3d4-e566-a7b8c9d0e1f2",
       "name": "Supabase - Upsert Final",
       "onError": "continueRegularOutput"
@@ -477,7 +513,7 @@
         ]
       ]
     },
-    "Write Audio to Disk": {
+    "Read/Write Files": {
       "main": [
         [
           {
@@ -500,6 +536,17 @@
       ]
     },
     "Submit Transcript Job": {
+      "main": [
+        [
+          {
+            "node": "Embed BQ Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embed BQ Data": {
       "main": [
         [
           {
