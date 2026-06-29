@@ -1,0 +1,560 @@
+{
+  "name": "BugQ_DowloadAudio_WithTranscription",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [-432, 16],
+      "id": "808033cb-aca3-4df2-b70d-9a83d3412291",
+      "name": "When clicking 'Execute workflow'"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "projectId": {
+          "__rl": true,
+          "value": "amity-one-debt-sys",
+          "mode": "list",
+          "cachedResultName": "amity-one-debt-sys",
+          "cachedResultUrl": "https://console.cloud.google.com/bigquery?project=amity-one-debt-sys"
+        },
+        "sqlQuery": "SELECT *\nFROM `amity-one-debt-sys.aod_ytel_call_log.call_log`\nWHERE DATE(call_date) = DATE '2026-06-26';",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleBigQuery",
+      "typeVersion": 2.1,
+      "position": [-224, 16],
+      "id": "471c760f-69bf-4bfc-9d0d-9ca2f3260758",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "googleApi": {
+          "id": "7C0BcGDnbHU2MJVB",
+          "name": "Google BigQuery account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "5a41b0f6-7249-41bd-9471-2f7c46532d45",
+              "leftValue": "={{ $json.length_in_sec }}",
+              "rightValue": 120,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            },
+            {
+              "id": "e8d77bd6-0c5b-49d5-bca7-e8e118d93649",
+              "leftValue": "={{ $json.direction }}",
+              "rightValue": "inbound",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "79459676-f5ed-45b0-81ac-fdb94f6b0f82",
+              "leftValue": "={{ $json.length_in_sec }}",
+              "rightValue": 60,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            },
+            {
+              "id": "ef51918a-2967-473d-a34c-bb17575b835c",
+              "leftValue": "={{ $json.campaign_id }}",
+              "rightValue": "AGENTDIRECT",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [64, -368],
+      "id": "38a2744e-986a-44d7-9681-4b4b61d0fda4",
+      "name": "AgentFlag_1-2min"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [304, -368],
+      "id": "76ab246d-6b2d-4c86-9b8c-d354949e16e5",
+      "name": "Loop Over Items7"
+    },
+    {
+      "parameters": {
+        "amount": 1
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [544, -352],
+      "id": "fbcbe3bb-e821-420d-a6b8-7ed1ea0ec7cc",
+      "name": "Wait7",
+      "webhookId": "180a560d-b44e-4fcc-9ce4-476a46339344"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.recording_location.replace(/^\\|/, '').trim() }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [768, -352],
+      "id": "002cc11d-b9af-436c-8cd5-f547547e17b9",
+      "name": "HTTP Request7",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f8a29503-ecb0-4c5f-a6d7-7483069fa01b",
+              "leftValue": "={{ $binary.data.fileName }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [1120, -352],
+      "id": "565d2ca8-baaa-4686-b442-49ce81de5713",
+      "name": "Filter7",
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "={{\n\"/Users/saman/.n8n-files/Ytel_Jobs/FlagCalls/\" +\n($json.phone_number_dialed || \"\") +\n\"-\" +\n($binary.data?.fileName || \"\").split(\"-\")[0] +\n\"-\" +\n($json[\"CRM Status\"] || \"\").replaceAll(\" \", \"_\") +\n\"-\" +\n($json.full_name || \"\").replaceAll(\" \", \"_\") +\n\"-\" +\nString($json[\"Enrolled Debt\"] || \"\")\n  .replace(/[$,\\s]/g, \"\")\n  .replace(/\\.00$/, \"\") +\n(\n  $json[\"Cordoba Enrolled Date\"]\n    ? \"-Enrolled-\" + $json[\"Cordoba Enrolled Date\"].replaceAll(\"/\", \"-\")\n    : \"-NotEnrolled\"\n) +\n\"-CallLength\" +\n($json.length_in_sec || \"\") +\n\".mp3\"\n}}",
+        "options": {
+          "append": false
+        }
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [1376, -352],
+      "id": "69d44dfc-8c50-42f8-aead-2af283720ae2",
+      "name": "Read/Write Files Google drive",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.assemblyai.com/v2/upload",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "YOUR_ASSEMBLYAI_API_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "audio/mpeg"
+            },
+            {
+              "name": "Transfer-Encoding",
+              "value": "chunked"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "binaryData",
+        "inputDataFieldName": "data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [1632, -352],
+      "id": "c1a2b3c4-d5e6-f7a8-b900-d1e2f3a4b5c6",
+      "name": "Upload to AssemblyAI",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.assemblyai.com/v2/transcript",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "YOUR_ASSEMBLYAI_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "audio_url",
+              "value": "={{ $json.upload_url }}"
+            },
+            {
+              "name": "speaker_labels",
+              "value": "={{ true }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [1888, -352],
+      "id": "d2e3f4a5-b6c7-d8e9-f011-b2c3d4e5f6a7",
+      "name": "Submit Transcript Job",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [2144, -352],
+      "id": "e3f4a5b6-c7d8-e9f0-a122-c3d4e5f6a7b8",
+      "name": "Wait - Poll AssemblyAI",
+      "webhookId": "a1b2c3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.assemblyai.com/v2/transcript/{{ $json.id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "YOUR_ASSEMBLYAI_API_KEY"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [2400, -352],
+      "id": "f4a5b6c7-d8e9-f0a1-b233-d4e5f6a7b8c9",
+      "name": "Get Transcript Status",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "aabb1122-ccdd-eeff-0011-223344556677",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "queued",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            },
+            {
+              "id": "bbcc2233-ddee-ff00-1122-334455667788",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "processing",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [2656, -352],
+      "id": "a5b6c7d8-e9f0-a1b2-c344-e5f6a7b8c9d0",
+      "name": "IF - Transcript Done"
+    },
+    {
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const bq = $('Read/Write Files Google drive').item.json;\nconst aai = $input.item.json;\n\nconst enrolledDebt = parseFloat(\n  String(bq['Enrolled Debt'] || '').replace(/[$,\\s]/g, '')\n) || null;\n\nreturn [{\n  json: {\n    call_key:                 bq.caller_code || null,\n    call_date:                bq.call_date || null,\n    direction:                bq.direction || null,\n    phone_number_dialed:      bq.phone_number_dialed || null,\n    status:                   bq.status || null,\n    user_id:                  bq.user || null,\n    agent_name:               bq.full_name || null,\n    campaign_id:              bq.campaign_id || null,\n    lead_id:                  bq.lead_id || null,\n    length_in_sec:            parseInt(bq.length_in_sec) || null,\n    talk_sec:                 parseInt(bq.talk_sec) || null,\n    dispo_sec:                parseInt(bq.dispo_sec) || null,\n    dead_sec:                 parseInt(bq.dead_sec) || null,\n    crm_status:               bq['CRM Status'] || null,\n    enrolled_debt:            enrolledDebt,\n    last_credit_pulled_date:  bq['Last Credit Pulled Date'] || bq.last_credit_pulled_date || null,\n    cordoba_enrolled_date:    bq['Cordoba Enrolled Date'] || bq.cordoba_enrolled_date || null,\n    recording_url:            bq.recording_location || null,\n    storage_path:             null,\n    storage_public_url:       null,\n    assemblyai_transcript_id: aai.id || null,\n    transcription_status:     aai.status || 'error',\n    transcript_text:          aai.text || null,\n    utterances:               aai.utterances || null\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2912, -352],
+      "id": "b6c7d8e9-f0a1-b2c3-d455-f6a7b8c9d0e1",
+      "name": "Prepare Supabase Payload"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=YOUR_SUPABASE_URL/rest/v1/ytel_call_transcripts",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "YOUR_SUPABASE_SERVICE_ROLE_KEY"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_SUPABASE_SERVICE_ROLE_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "resolution=merge-duplicates,return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ $json }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [3168, -352],
+      "id": "c7d8e9f0-a1b2-c3d4-e566-a7b8c9d0e1f2",
+      "name": "Supabase - Upsert Final",
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "connections": {
+    "When clicking 'Execute workflow'": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
+            "node": "AgentFlag_1-2min",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AgentFlag_1-2min": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items7": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Wait7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait7": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request7": {
+      "main": [
+        [
+          {
+            "node": "Filter7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter7": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files Google drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read/Write Files Google drive": {
+      "main": [
+        [
+          {
+            "node": "Upload to AssemblyAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload to AssemblyAI": {
+      "main": [
+        [
+          {
+            "node": "Submit Transcript Job",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Submit Transcript Job": {
+      "main": [
+        [
+          {
+            "node": "Wait - Poll AssemblyAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait - Poll AssemblyAI": {
+      "main": [
+        [
+          {
+            "node": "Get Transcript Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Transcript Status": {
+      "main": [
+        [
+          {
+            "node": "IF - Transcript Done",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Transcript Done": {
+      "main": [
+        [
+          {
+            "node": "Prepare Supabase Payload",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait - Poll AssemblyAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Supabase Payload": {
+      "main": [
+        [
+          {
+            "node": "Supabase - Upsert Final",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase - Upsert Final": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "07dd4f143144583eff56c81a9a77b4e0a223bff7e3e5b44f2df482de13037f17"
+  },
+  "nodeGroups": [],
+  "tags": []
+}
