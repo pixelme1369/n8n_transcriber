@@ -190,7 +190,7 @@
           "parameters": [
             {
               "name": "Authorization",
-              "value": "YOUR_ASSEMBLYAI_API_KEY"
+              "value": "9fdfa1227200402783eab700a179d84b"
             },
             {
               "name": "Content-Type",
@@ -223,7 +223,7 @@
           "parameters": [
             {
               "name": "Authorization",
-              "value": "YOUR_ASSEMBLYAI_API_KEY"
+              "value": "9fdfa1227200402783eab700a179d84b"
             }
           ]
         },
@@ -305,7 +305,7 @@
           "parameters": [
             {
               "name": "Authorization",
-              "value": "YOUR_ASSEMBLYAI_API_KEY"
+              "value": "9fdfa1227200402783eab700a179d84b"
             }
           ]
         },
@@ -399,17 +399,17 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "=YOUR_SUPABASE_URL/rest/v1/ytel_call_transcripts",
+        "url": "https://rgxmzdwatkgxgzdpmskj.supabase.co/rest/v1/ytel_call_transcripts",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
               "name": "apikey",
-              "value": "YOUR_SUPABASE_SERVICE_ROLE_KEY"
+              "value": "sb_secret_UQ-Vj8piN3jJ_mdqqYJ27w_wQfph-Cr"
             },
             {
               "name": "Authorization",
-              "value": "Bearer YOUR_SUPABASE_SERVICE_ROLE_KEY"
+              "value": "Bearer sb_secret_UQ-Vj8piN3jJ_mdqqYJ27w_wQfph-Cr"
             },
             {
               "name": "Content-Type",
