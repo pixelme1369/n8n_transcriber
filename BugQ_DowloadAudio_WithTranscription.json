@@ -323,11 +323,39 @@
     },
     {
       "parameters": {
-        "language": "javaScript",
-        "jsCode": "const bq = $('Read/Write Files Google drive').item.json;\nconst aai = $input.item.json || {};\n\n// If AAI returned an error object (HTTP error), mark as error and skip transcript fields\nconst isError = !!aai.error || aai.status === 'error' || !aai.id;\n\nconst enrolledDebt = parseFloat(\n  String(bq['Enrolled Debt'] || '').replace(/[$,\\s]/g, '')\n) || null;\n\nreturn [{\n  json: {\n    call_key:                 bq.caller_code || null,\n    call_date:                bq.call_date || null,\n    direction:                bq.direction || null,\n    phone_number_dialed:      bq.phone_number_dialed || null,\n    status:                   bq.status || null,\n    user_id:                  bq.user || null,\n    agent_name:               bq.full_name || null,\n    campaign_id:              bq.campaign_id || null,\n    lead_id:                  bq.lead_id || null,\n    length_in_sec:            parseInt(bq.length_in_sec) || null,\n    talk_sec:                 parseInt(bq.talk_sec) || null,\n    dispo_sec:                parseInt(bq.dispo_sec) || null,\n    dead_sec:                 parseInt(bq.dead_sec) || null,\n    crm_status:               bq['CRM Status'] || null,\n    enrolled_debt:            enrolledDebt,\n    last_credit_pulled_date:  bq['Last Credit Pulled Date'] || bq.last_credit_pulled_date || null,\n    cordoba_enrolled_date:    bq['Cordoba Enrolled Date'] || bq.cordoba_enrolled_date || null,\n    recording_url:            bq.recording_location || null,\n    storage_path:             null,\n    storage_public_url:       null,\n    assemblyai_transcript_id: aai.id || null,\n    transcription_status:     isError ? 'error' : (aai.status || 'error'),\n    transcript_text:          isError ? null : (aai.text || null),\n    utterances:               isError ? null : (aai.utterances || null)\n  }\n}];"
+        "mode": "manual",
+        "duplicateItem": false,
+        "assignments": {
+          "assignments": [
+            {"id": "aa01", "name": "call_key",                 "value": "={{ $('Read/Write Files Google drive').item.json.caller_code }}",                                                                                                                      "type": "string"},
+            {"id": "aa02", "name": "call_date",                "value": "={{ $('Read/Write Files Google drive').item.json.call_date }}",                                                                                                                        "type": "string"},
+            {"id": "aa03", "name": "direction",                "value": "={{ $('Read/Write Files Google drive').item.json.direction }}",                                                                                                                        "type": "string"},
+            {"id": "aa04", "name": "phone_number_dialed",      "value": "={{ $('Read/Write Files Google drive').item.json.phone_number_dialed }}",                                                                                                               "type": "string"},
+            {"id": "aa05", "name": "status",                   "value": "={{ $('Read/Write Files Google drive').item.json.status }}",                                                                                                                           "type": "string"},
+            {"id": "aa06", "name": "user_id",                  "value": "={{ $('Read/Write Files Google drive').item.json.user }}",                                                                                                                             "type": "string"},
+            {"id": "aa07", "name": "agent_name",               "value": "={{ $('Read/Write Files Google drive').item.json.full_name }}",                                                                                                                        "type": "string"},
+            {"id": "aa08", "name": "campaign_id",              "value": "={{ $('Read/Write Files Google drive').item.json.campaign_id }}",                                                                                                                      "type": "string"},
+            {"id": "aa09", "name": "lead_id",                  "value": "={{ $('Read/Write Files Google drive').item.json.lead_id }}",                                                                                                                          "type": "string"},
+            {"id": "aa10", "name": "length_in_sec",            "value": "={{ parseInt($('Read/Write Files Google drive').item.json.length_in_sec) || null }}",                                                                                                  "type": "number"},
+            {"id": "aa11", "name": "talk_sec",                 "value": "={{ parseInt($('Read/Write Files Google drive').item.json.talk_sec) || null }}",                                                                                                       "type": "number"},
+            {"id": "aa12", "name": "dispo_sec",                "value": "={{ parseInt($('Read/Write Files Google drive').item.json.dispo_sec) || null }}",                                                                                                      "type": "number"},
+            {"id": "aa13", "name": "dead_sec",                 "value": "={{ parseInt($('Read/Write Files Google drive').item.json.dead_sec) || null }}",                                                                                                       "type": "number"},
+            {"id": "aa14", "name": "crm_status",               "value": "={{ $('Read/Write Files Google drive').item.json['CRM Status'] || null }}",                                                                                                           "type": "string"},
+            {"id": "aa15", "name": "enrolled_debt",            "value": "={{ parseFloat(String($('Read/Write Files Google drive').item.json['Enrolled Debt'] || '').replace(/[$,\\s]/g, '')) || null }}",                                                      "type": "number"},
+            {"id": "aa16", "name": "last_credit_pulled_date",  "value": "={{ $('Read/Write Files Google drive').item.json['Last Credit Pulled Date'] || $('Read/Write Files Google drive').item.json.last_credit_pulled_date || null }}",                      "type": "string"},
+            {"id": "aa17", "name": "cordoba_enrolled_date",    "value": "={{ $('Read/Write Files Google drive').item.json['Cordoba Enrolled Date'] || $('Read/Write Files Google drive').item.json.cordoba_enrolled_date || null }}",                          "type": "string"},
+            {"id": "aa18", "name": "recording_url",            "value": "={{ $('Read/Write Files Google drive').item.json.recording_location || null }}",                                                                                                       "type": "string"},
+            {"id": "aa19", "name": "assemblyai_transcript_id", "value": "={{ $json.id || null }}",                                                                                                                                                              "type": "string"},
+            {"id": "aa20", "name": "transcription_status",     "value": "={{ $json.status || 'error' }}",                                                                                                                                                      "type": "string"},
+            {"id": "aa21", "name": "transcript_text",          "value": "={{ $json.text || null }}",                                                                                                                                                            "type": "string"},
+            {"id": "aa22", "name": "utterances",               "value": "={{ $json.utterances || null }}",                                                                                                                                                      "type": "array"}
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
       },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
       "position": [2912, -352],
       "id": "b6c7d8e9-f0a1-b2c3-d455-f6a7b8c9d0e1",
       "name": "Prepare Supabase Payload"
