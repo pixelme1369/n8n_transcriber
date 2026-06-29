@@ -422,8 +422,9 @@
           ]
         },
         "sendBody": true,
-        "contentType": "json",
-        "body": "={{ $json }}",
+        "contentType": "rawBody",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify($json) }}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
