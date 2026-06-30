@@ -167,7 +167,7 @@
         "sendBody": true,
         "contentType": "raw",
         "rawContentType": "application/json",
-        "body": "=={{ $json.patch_body }}",
+        "body": "={{ $json.patch_body }}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
