@@ -96,7 +96,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const analysis = $('Analyze Call').item.json;\nconst raw = ($json.message?.content || $json.response || $json.text || '').trim().toLowerCase().replace(/[^a-z_]/g, '');\n\nconst validOutcomes = ['not_interested','callback_requested','strong_interest','appointment_set','no_signal'];\nconst outcome = validOutcomes.includes(raw) ? raw : 'no_signal';\n\nconst patch_body = JSON.stringify({\n  analysis_flags: analysis.flags,\n  analysis_summary: {\n    compliance_pass: !analysis.has_compliance_issue,\n    agent_sentiment_ok: analysis.agent_sentiment_ok,\n    outcome,\n    flag_count: analysis.flags.length\n  },\n  analyzed_at: analysis.analyzed_at\n});\n\nreturn [{ json: { call_key: analysis.call_key, patch_body } }];"
+        "jsCode": "const analysis = $('Analyze Call').item.json;\nconst raw = ($json.message?.content || $json.response || $json.text || '').toLowerCase();\n\nconst validOutcomes = ['not_interested','callback_requested','strong_interest','appointment_set','no_signal'];\nconst outcome = validOutcomes.find(o => raw.includes(o)) || 'no_signal';\n\nconst patch_body = JSON.stringify({\n  analysis_flags: analysis.flags,\n  analysis_summary: {\n    compliance_pass: !analysis.has_compliance_issue,\n    agent_sentiment_ok: analysis.agent_sentiment_ok,\n    outcome,\n    flag_count: analysis.flags.length\n  },\n  analyzed_at: analysis.analyzed_at\n});\n\nreturn [{ json: { call_key: analysis.call_key, patch_body } }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
