@@ -69,16 +69,26 @@
     },
     {
       "parameters": {
-        "method": "POST",
-        "url": "http://localhost:11434/api/generate",
-        "sendBody": true,
-        "contentType": "rawBody",
-        "rawContentType": "application/json",
-        "body": "={{ JSON.stringify({ model: 'llama3.2', stream: false, prompt: 'You are a call analysis assistant. Read this call transcript between an Agent and a Lead. Classify the call outcome using ONLY one of these exact labels:\\n- not_interested\\n- callback_requested\\n- strong_interest\\n- appointment_set\\n- no_signal\\n\\nRespond with ONLY the label, nothing else.\\n\\nTranscript:\\n' + $json.transcript_formatted }) }}",
+        "resource": "text",
+        "operation": "message",
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "llama3.2"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "={{ 'You are a call analysis assistant. Read this call transcript between an Agent and a Lead. Classify the call outcome using ONLY one of these exact labels:\\nnot_interested\\ncallback_requested\\nstrong_interest\\nappointment_set\\nno_signal\\n\\nRespond with ONLY the label, nothing else.\\n\\nTranscript:\\n' + $json.transcript_formatted }}",
+              "role": "user"
+            }
+          ]
+        },
+        "simplifyOutput": true,
         "options": {}
       },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.4,
+      "type": "@n8n/n8n-nodes-langchain.lmOllama",
+      "typeVersion": 1,
       "position": [800, 0],
       "id": "aa000001-0000-0000-0000-000000000007",
       "name": "Ollama - Classify Outcome",
@@ -86,7 +96,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const analysis = $('Analyze Call').item.json;\nconst ollamaRaw = ($json.response || '').trim().toLowerCase().replace(/[^a-z_]/g, '');\n\nconst validOutcomes = ['not_interested','callback_requested','strong_interest','appointment_set','no_signal'];\nconst outcome = validOutcomes.includes(ollamaRaw) ? ollamaRaw : 'no_signal';\n\nconst patch_body = JSON.stringify({\n  analysis_flags: analysis.flags,\n  analysis_summary: {\n    compliance_pass: !analysis.has_compliance_issue,\n    agent_sentiment_ok: analysis.agent_sentiment_ok,\n    outcome,\n    flag_count: analysis.flags.length\n  },\n  analyzed_at: analysis.analyzed_at\n});\n\nreturn [{ json: { call_key: analysis.call_key, patch_body } }];"
+        "jsCode": "const analysis = $('Analyze Call').item.json;\nconst raw = ($json.message?.content || $json.response || $json.text || '').trim().toLowerCase().replace(/[^a-z_]/g, '');\n\nconst validOutcomes = ['not_interested','callback_requested','strong_interest','appointment_set','no_signal'];\nconst outcome = validOutcomes.includes(raw) ? raw : 'no_signal';\n\nconst patch_body = JSON.stringify({\n  analysis_flags: analysis.flags,\n  analysis_summary: {\n    compliance_pass: !analysis.has_compliance_issue,\n    agent_sentiment_ok: analysis.agent_sentiment_ok,\n    outcome,\n    flag_count: analysis.flags.length\n  },\n  analyzed_at: analysis.analyzed_at\n});\n\nreturn [{ json: { call_key: analysis.call_key, patch_body } }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
