@@ -2,14 +2,6 @@
   "name": "CallAnalysis_KeywordFlags",
   "nodes": [
     {
-      "parameters": {},
-      "type": "n8n-nodes-base.manualTrigger",
-      "typeVersion": 1,
-      "position": [-400, 0],
-      "id": "aa000001-0000-0000-0000-000000000001",
-      "name": "Run Analysis"
-    },
-    {
       "parameters": {
         "url": "https://rgxmzdwatkgxgzdpmskj.supabase.co/rest/v1/ytel_call_transcripts?analyzed_at=is.null&transcription_status=eq.completed&select=call_key,agent_name,call_date,utterances",
         "sendHeaders": true,
@@ -23,20 +15,18 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
-      "position": [-160, 0],
-      "id": "aa000001-0000-0000-0000-000000000002",
-      "name": "Fetch Unanalyzed Calls",
+      "position": [256, 0],
+      "id": "452f1011-693f-459e-bf34-8eea9dce68db",
+      "name": "Fetch Unanalyzed Calls1",
       "onError": "continueRegularOutput"
     },
     {
-      "parameters": {
-        "options": {}
-      },
+      "parameters": { "options": {} },
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
-      "position": [80, 0],
-      "id": "aa000001-0000-0000-0000-000000000003",
-      "name": "Loop Over Calls"
+      "position": [496, 0],
+      "id": "094f2a5a-3feb-4745-bbb5-2370e19e5bff",
+      "name": "Loop Over Calls1"
     },
     {
       "parameters": {
@@ -52,57 +42,59 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
-      "position": [320, 0],
-      "id": "aa000001-0000-0000-0000-000000000004",
-      "name": "Fetch Rules",
+      "position": [736, 0],
+      "id": "e4b905b9-9ea4-4998-92df-e7847f91b448",
+      "name": "Fetch Rules1",
       "onError": "continueRegularOutput"
     },
     {
       "parameters": {
-        "jsCode": "const call = $('Loop Over Calls').item.json;\nconst utterances = call.utterances || [];\nconst rules = $('Fetch Rules').all().map(r => r.json);\n\nconst flags = [];\n\nfor (const rule of rules) {\n  if (!rule.active) continue;\n\n  if (rule.rule_type === 'compliance_required') {\n    const speakerUtterances = rule.speaker\n      ? utterances.filter(u => u.speaker === rule.speaker)\n      : utterances;\n    const found = speakerUtterances.some(u =>\n      rule.keywords.some(kw => (u.text || '').toLowerCase().includes(kw.toLowerCase()))\n    );\n    if (!found) {\n      flags.push({\n        flag_name: rule.flag_name,\n        rule_type: rule.rule_type,\n        severity: rule.severity,\n        matched_keyword: null,\n        speaker: rule.speaker,\n        utterance_index: null\n      });\n    }\n    continue;\n  }\n\n  for (let i = 0; i < utterances.length; i++) {\n    const u = utterances[i];\n    if (rule.speaker && u.speaker !== rule.speaker) continue;\n    const text = (u.text || '').toLowerCase();\n    for (const kw of rule.keywords) {\n      if (text.includes(kw.toLowerCase())) {\n        flags.push({\n          flag_name: rule.flag_name,\n          rule_type: rule.rule_type,\n          severity: rule.severity,\n          matched_keyword: kw,\n          speaker: u.speaker,\n          utterance_index: i\n        });\n        break;\n      }\n    }\n  }\n}\n\nconst hasComplianceIssue = flags.some(f => f.rule_type.startsWith('compliance'));\nconst analyzedAt = new Date().toISOString();\n\n// Format transcript for Ollama: \"Agent: ...\", \"Lead: ...\"\nconst transcript_formatted = utterances\n  .map(u => (u.speaker === 'A' ? 'Agent' : 'Lead') + ': ' + (u.text || ''))\n  .join('\\n');\n\nreturn [{\n  json: {\n    call_key: call.call_key,\n    flags,\n    has_compliance_issue: hasComplianceIssue,\n    agent_sentiment_ok: !flags.some(f => f.rule_type === 'sentiment_agent'),\n    analyzed_at: analyzedAt,\n    transcript_formatted\n  }\n}];"
+        "jsCode": "const call = $('Loop Over Calls1').item.json;\nconst utterances = call.utterances || [];\nconst rules = $('Fetch Rules1').all().map(r => r.json);\n\nconst flags = [];\n\nfor (const rule of rules) {\n  if (!rule.active) continue;\n\n  if (rule.rule_type === 'compliance_required') {\n    const speakerUtterances = rule.speaker\n      ? utterances.filter(u => u.speaker === rule.speaker)\n      : utterances;\n    const found = speakerUtterances.some(u =>\n      rule.keywords.some(kw => (u.text || '').toLowerCase().includes(kw.toLowerCase()))\n    );\n    if (!found) {\n      flags.push({\n        flag_name: rule.flag_name,\n        rule_type: rule.rule_type,\n        severity: rule.severity,\n        matched_keyword: null,\n        speaker: rule.speaker,\n        utterance_index: null\n      });\n    }\n    continue;\n  }\n\n  for (let i = 0; i < utterances.length; i++) {\n    const u = utterances[i];\n    if (rule.speaker && u.speaker !== rule.speaker) continue;\n    const text = (u.text || '').toLowerCase();\n    for (const kw of rule.keywords) {\n      if (text.includes(kw.toLowerCase())) {\n        flags.push({\n          flag_name: rule.flag_name,\n          rule_type: rule.rule_type,\n          severity: rule.severity,\n          matched_keyword: kw,\n          speaker: u.speaker,\n          utterance_index: i\n        });\n        break;\n      }\n    }\n  }\n}\n\nconst hasComplianceIssue = flags.some(f => f.rule_type.startsWith('compliance'));\nconst analyzedAt = new Date().toLocaleString('en-US', {timeZone: 'America/Los_Angeles'});\n\nconst transcript_formatted = utterances\n  .map(u => (u.speaker === 'A' ? 'Agent' : 'Lead') + ': ' + (u.text || ''))\n  .join('\\n');\n\nreturn [{\n  json: {\n    call_key: call.call_key,\n    flags,\n    has_compliance_issue: hasComplianceIssue,\n    agent_sentiment_ok: !flags.some(f => f.rule_type === 'sentiment_agent'),\n    analyzed_at: analyzedAt,\n    transcript_formatted\n  }\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [560, 0],
-      "id": "aa000001-0000-0000-0000-000000000005",
-      "name": "Analyze Call"
+      "position": [976, 0],
+      "id": "7aaeb6ed-dc27-4630-af8f-c0c86038f120",
+      "name": "Analyze Call1"
     },
     {
       "parameters": {
-        "resource": "text",
-        "operation": "message",
-        "model": {
+        "modelId": {
           "__rl": true,
+          "value": "gemma4:latest",
           "mode": "list",
-          "value": "gemma4:latest"
+          "cachedResultName": "gemma4:latest"
         },
         "messages": {
           "values": [
             {
-              "content": "={{ 'You are a call analysis assistant. Read this call transcript between an Agent and a Lead. Classify the call outcome using ONLY one of these exact labels:\\nnot_interested\\ncallback_requested\\nstrong_interest\\nappointment_set\\nno_signal\\n\\nRespond with ONLY the label, nothing else.\\n\\nTranscript:\\n' + $json.transcript_formatted }}",
-              "role": "user"
+              "content": "=whats the outcome of this call return one of these \nnot_interested — lead shut it down\ncallback_requested — lead wants to talk later\nstrong_interest — lead is engaged, wants to move forward\nappointment_set — booking was made\ndnc — lead asked to be removed or placed on do not call list\nno_signal — can't tell / neutral\n\nRespond with ONLY the label, nothing else.\n\n{{ $json.transcript_formatted }}"
             }
           ]
         },
-        "simplifyOutput": true,
         "options": {}
       },
-      "type": "@n8n/n8n-nodes-langchain.lmOllama",
+      "type": "@n8n/n8n-nodes-langchain.ollama",
       "typeVersion": 1,
-      "position": [800, 0],
-      "id": "aa000001-0000-0000-0000-000000000007",
-      "name": "Ollama - Classify Outcome",
-      "onError": "continueRegularOutput"
+      "position": [1168, -160],
+      "id": "fb320826-4ee0-4134-ada5-3edc3eeae695",
+      "name": "Message a model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "7tkS6ax8x425Av3A",
+          "name": "Ollama account"
+        }
+      }
     },
     {
       "parameters": {
-        "jsCode": "const analysis = $('Analyze Call').item.json;\nconst raw = ($json.message?.content || $json.response || $json.text || '').toLowerCase();\n\nconst validOutcomes = ['not_interested','callback_requested','strong_interest','appointment_set','no_signal'];\nconst outcome = validOutcomes.find(o => raw.includes(o)) || 'no_signal';\n\nconst patch_body = JSON.stringify({\n  analysis_flags: analysis.flags,\n  analysis_summary: {\n    compliance_pass: !analysis.has_compliance_issue,\n    agent_sentiment_ok: analysis.agent_sentiment_ok,\n    outcome,\n    flag_count: analysis.flags.length\n  },\n  analyzed_at: analysis.analyzed_at\n});\n\nreturn [{ json: { call_key: analysis.call_key, patch_body } }];"
+        "jsCode": "const analysis = $('Analyze Call1').item.json;\nconst raw = ($input.first().json.content || '').toLowerCase().replace(/_/g, ' ');\n\nconst validOutcomes = ['not_interested','callback_requested','strong_interest','appointment_set','dnc','no_signal'];\nconst outcome = (validOutcomes.find(o => raw.includes(o.replace(/_/g,' '))) || 'no_signal').replace(/ /g,'_');\n\nconst patch_body = JSON.stringify({\n  analysis_flags: analysis.flags,\n  analysis_summary: {\n    compliance_pass: !analysis.has_compliance_issue,\n    agent_sentiment_ok: analysis.agent_sentiment_ok,\n    outcome,\n    flag_count: analysis.flags.length\n  },\n  analyzed_at: analysis.analyzed_at\n});\n\nreturn [{ json: { call_key: analysis.call_key, patch_body } }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1040, 0],
-      "id": "aa000001-0000-0000-0000-000000000008",
-      "name": "Merge Outcome"
+      "position": [1456, 0],
+      "id": "e008e33b-b6b9-4792-8b8c-a4637f9b18e9",
+      "name": "Merge Outcome1"
     },
     {
       "parameters": {
@@ -125,49 +117,61 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
-      "position": [1280, 0],
-      "id": "aa000001-0000-0000-0000-000000000006",
-      "name": "Update Supabase Row",
+      "position": [1696, 0],
+      "id": "b73d59c4-c798-4488-a034-9f000e322888",
+      "name": "Update Supabase Row1",
       "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "id": "ae5e3c1e-b136-40ef-916c-0d2c4507f757",
+      "name": "When clicking 'Execute workflow'"
     }
   ],
+  "pinData": {},
   "connections": {
-    "Run Analysis": {
-      "main": [[{ "node": "Fetch Unanalyzed Calls", "type": "main", "index": 0 }]]
+    "When clicking 'Execute workflow'": {
+      "main": [[{ "node": "Fetch Unanalyzed Calls1", "type": "main", "index": 0 }]]
     },
-    "Fetch Unanalyzed Calls": {
-      "main": [[{ "node": "Loop Over Calls", "type": "main", "index": 0 }]]
+    "Fetch Unanalyzed Calls1": {
+      "main": [[{ "node": "Loop Over Calls1", "type": "main", "index": 0 }]]
     },
-    "Loop Over Calls": {
+    "Loop Over Calls1": {
       "main": [
         [],
-        [{ "node": "Fetch Rules", "type": "main", "index": 0 }]
+        [{ "node": "Fetch Rules1", "type": "main", "index": 0 }]
       ]
     },
-    "Fetch Rules": {
-      "main": [[{ "node": "Analyze Call", "type": "main", "index": 0 }]]
+    "Fetch Rules1": {
+      "main": [[{ "node": "Analyze Call1", "type": "main", "index": 0 }]]
     },
-    "Analyze Call": {
-      "main": [[{ "node": "Ollama - Classify Outcome", "type": "main", "index": 0 }]]
+    "Analyze Call1": {
+      "main": [[{ "node": "Message a model", "type": "main", "index": 0 }]]
     },
-    "Ollama - Classify Outcome": {
-      "main": [[{ "node": "Merge Outcome", "type": "main", "index": 0 }]]
+    "Message a model": {
+      "main": [[{ "node": "Merge Outcome1", "type": "main", "index": 0 }]]
     },
-    "Merge Outcome": {
-      "main": [[{ "node": "Update Supabase Row", "type": "main", "index": 0 }]]
+    "Merge Outcome1": {
+      "main": [[{ "node": "Update Supabase Row1", "type": "main", "index": 0 }]]
     },
-    "Update Supabase Row": {
-      "main": [[{ "node": "Loop Over Calls", "type": "main", "index": 0 }]]
+    "Update Supabase Row1": {
+      "main": [[{ "node": "Loop Over Calls1", "type": "main", "index": 0 }]]
     }
   },
   "active": false,
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "binaryMode": "separate"
   },
+  "versionId": "7586bd5a-a313-468d-a352-0af430876fd4",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "07dd4f143144583eff56c81a9a77b4e0a223bff7e3e5b44f2df482de13037f17"
   },
   "nodeGroups": [],
+  "id": "RHSZb9c5tyu1Adu5",
   "tags": []
 }
