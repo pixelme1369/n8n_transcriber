@@ -59,13 +59,40 @@
     },
     {
       "parameters": {
-        "jsCode": "// Pull call data and rules\nconst call = $('Loop Over Calls').item.json;\nconst utterances = call.utterances || [];\nconst rules = $('Fetch Rules').all().map(r => r.json);\n\nconst flags = [];\n\nfor (const rule of rules) {\n  if (!rule.active) continue;\n\n  // For compliance_required: flag if NO utterance from the required speaker contains ANY keyword\n  if (rule.rule_type === 'compliance_required') {\n    const speakerUtterances = rule.speaker\n      ? utterances.filter(u => u.speaker === rule.speaker)\n      : utterances;\n    const found = speakerUtterances.some(u =>\n      rule.keywords.some(kw => (u.text || '').toLowerCase().includes(kw.toLowerCase()))\n    );\n    if (!found) {\n      flags.push({\n        flag_name: rule.flag_name,\n        rule_type: rule.rule_type,\n        severity: rule.severity,\n        matched_keyword: null,\n        speaker: rule.speaker,\n        utterance_index: null\n      });\n    }\n    continue;\n  }\n\n  // For all other rule types: flag each utterance where a keyword IS found\n  for (let i = 0; i < utterances.length; i++) {\n    const u = utterances[i];\n    if (rule.speaker && u.speaker !== rule.speaker) continue;\n    const text = (u.text || '').toLowerCase();\n    for (const kw of rule.keywords) {\n      if (text.includes(kw.toLowerCase())) {\n        flags.push({\n          flag_name: rule.flag_name,\n          rule_type: rule.rule_type,\n          severity: rule.severity,\n          matched_keyword: kw,\n          speaker: u.speaker,\n          utterance_index: i\n        });\n        break; // one flag per rule per utterance max\n      }\n    }\n  }\n}\n\n// Build summary\nconst hasComplianceIssue = flags.some(f => f.rule_type.startsWith('compliance'));\nconst outcomeFlags = flags.filter(f => f.rule_type === 'outcome').map(f => f.flag_name);\nconst outcome = outcomeFlags.length ? outcomeFlags[0] : 'no_signal';\n\nreturn [{\n  json: {\n    call_key: call.call_key,\n    analysis_flags: flags,\n    analysis_summary: {\n      compliance_pass: !hasComplianceIssue,\n      agent_sentiment_ok: !flags.some(f => f.rule_type === 'sentiment_agent'),\n      outcome,\n      flag_count: flags.length\n    },\n    analyzed_at: new Date().toISOString()\n  }\n}];"
+        "jsCode": "const call = $('Loop Over Calls').item.json;\nconst utterances = call.utterances || [];\nconst rules = $('Fetch Rules').all().map(r => r.json);\n\nconst flags = [];\n\nfor (const rule of rules) {\n  if (!rule.active) continue;\n\n  if (rule.rule_type === 'compliance_required') {\n    const speakerUtterances = rule.speaker\n      ? utterances.filter(u => u.speaker === rule.speaker)\n      : utterances;\n    const found = speakerUtterances.some(u =>\n      rule.keywords.some(kw => (u.text || '').toLowerCase().includes(kw.toLowerCase()))\n    );\n    if (!found) {\n      flags.push({\n        flag_name: rule.flag_name,\n        rule_type: rule.rule_type,\n        severity: rule.severity,\n        matched_keyword: null,\n        speaker: rule.speaker,\n        utterance_index: null\n      });\n    }\n    continue;\n  }\n\n  for (let i = 0; i < utterances.length; i++) {\n    const u = utterances[i];\n    if (rule.speaker && u.speaker !== rule.speaker) continue;\n    const text = (u.text || '').toLowerCase();\n    for (const kw of rule.keywords) {\n      if (text.includes(kw.toLowerCase())) {\n        flags.push({\n          flag_name: rule.flag_name,\n          rule_type: rule.rule_type,\n          severity: rule.severity,\n          matched_keyword: kw,\n          speaker: u.speaker,\n          utterance_index: i\n        });\n        break;\n      }\n    }\n  }\n}\n\nconst hasComplianceIssue = flags.some(f => f.rule_type.startsWith('compliance'));\nconst analyzedAt = new Date().toISOString();\n\n// Format transcript for Ollama: \"Agent: ...\", \"Lead: ...\"\nconst transcript_formatted = utterances\n  .map(u => (u.speaker === 'A' ? 'Agent' : 'Lead') + ': ' + (u.text || ''))\n  .join('\\n');\n\nreturn [{\n  json: {\n    call_key: call.call_key,\n    flags,\n    has_compliance_issue: hasComplianceIssue,\n    agent_sentiment_ok: !flags.some(f => f.rule_type === 'sentiment_agent'),\n    analyzed_at: analyzedAt,\n    transcript_formatted\n  }\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [560, 0],
       "id": "aa000001-0000-0000-0000-000000000005",
       "name": "Analyze Call"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:11434/api/generate",
+        "sendBody": true,
+        "contentType": "rawBody",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({ model: 'llama3.2', stream: false, prompt: 'You are a call analysis assistant. Read this call transcript between an Agent and a Lead. Classify the call outcome using ONLY one of these exact labels:\\n- not_interested\\n- callback_requested\\n- strong_interest\\n- appointment_set\\n- no_signal\\n\\nRespond with ONLY the label, nothing else.\\n\\nTranscript:\\n' + $json.transcript_formatted }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [800, 0],
+      "id": "aa000001-0000-0000-0000-000000000007",
+      "name": "Ollama - Classify Outcome",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const analysis = $('Analyze Call').item.json;\nconst ollamaRaw = ($json.response || '').trim().toLowerCase().replace(/[^a-z_]/g, '');\n\nconst validOutcomes = ['not_interested','callback_requested','strong_interest','appointment_set','no_signal'];\nconst outcome = validOutcomes.includes(ollamaRaw) ? ollamaRaw : 'no_signal';\n\nconst patch_body = JSON.stringify({\n  analysis_flags: analysis.flags,\n  analysis_summary: {\n    compliance_pass: !analysis.has_compliance_issue,\n    agent_sentiment_ok: analysis.agent_sentiment_ok,\n    outcome,\n    flag_count: analysis.flags.length\n  },\n  analyzed_at: analysis.analyzed_at\n});\n\nreturn [{ json: { call_key: analysis.call_key, patch_body } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1040, 0],
+      "id": "aa000001-0000-0000-0000-000000000008",
+      "name": "Merge Outcome"
     },
     {
       "parameters": {
@@ -83,12 +110,12 @@
         "sendBody": true,
         "contentType": "rawBody",
         "rawContentType": "application/json",
-        "body": "={{ JSON.stringify({ analysis_flags: JSON.parse(JSON.stringify($json.analysis_flags)), analysis_summary: $json.analysis_summary, analyzed_at: $json.analyzed_at }) }}",
+        "body": "={{ $json.patch_body }}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
-      "position": [800, 0],
+      "position": [1280, 0],
       "id": "aa000001-0000-0000-0000-000000000006",
       "name": "Update Supabase Row",
       "onError": "continueRegularOutput"
@@ -111,6 +138,12 @@
       "main": [[{ "node": "Analyze Call", "type": "main", "index": 0 }]]
     },
     "Analyze Call": {
+      "main": [[{ "node": "Ollama - Classify Outcome", "type": "main", "index": 0 }]]
+    },
+    "Ollama - Classify Outcome": {
+      "main": [[{ "node": "Merge Outcome", "type": "main", "index": 0 }]]
+    },
+    "Merge Outcome": {
       "main": [[{ "node": "Update Supabase Row", "type": "main", "index": 0 }]]
     },
     "Update Supabase Row": {
