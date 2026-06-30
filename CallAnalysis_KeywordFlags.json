@@ -74,7 +74,7 @@
         "model": {
           "__rl": true,
           "mode": "list",
-          "value": "llama3.2"
+          "value": "gemma4:latest"
         },
         "messages": {
           "values": [
