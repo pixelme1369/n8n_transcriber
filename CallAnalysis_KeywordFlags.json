@@ -79,7 +79,7 @@
         "messages": {
           "values": [
             {
-              "content": "={{ 'You are a call analysis assistant. Read this call transcript between an Agent and a Lead. Classify the call outcome using ONLY one of these exact labels:\\nnot_interested\\ncallback_requested\\nstrong_interest\\nappointment_set\\nno_signal\\n\\nRespond with ONLY the label, nothing else.\\n\\nTranscript:\\n' + $json.transcript_formatted }}",
+              "content": "={{ 'You are a call analysis assistant. Read this call transcript between an Agent and a Lead. Classify the call outcome using ONLY one of these exact labels:\\nnot_interested\\ncallback_requested\\nstrong_interest\\nappointment_set\\ndnc\\nno_signal\\n\\ndnc = lead asked to be removed from the list or placed on do not call.\\n\\nRespond with ONLY the label, nothing else.\\n\\nTranscript:\\n' + $json.transcript_formatted }}",
               "role": "user"
             }
           ]
@@ -96,7 +96,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const analysis = $('Analyze Call').item.json;\nconst raw = ($json.message?.content || $json.response || $json.text || '').toLowerCase().replace(/_/g, ' ');\n\nconst validOutcomes = ['not_interested','callback_requested','strong_interest','appointment_set','no_signal'];\nconst outcome = (validOutcomes.find(o => raw.includes(o.replace(/_/g,' '))) || 'no_signal').replace(/ /g,'_');\n\nconst patch_body = JSON.stringify({\n  analysis_flags: analysis.flags,\n  analysis_summary: {\n    compliance_pass: !analysis.has_compliance_issue,\n    agent_sentiment_ok: analysis.agent_sentiment_ok,\n    outcome,\n    flag_count: analysis.flags.length\n  },\n  analyzed_at: analysis.analyzed_at\n});\n\nreturn [{ json: { call_key: analysis.call_key, patch_body } }];"
+        "jsCode": "const analysis = $('Analyze Call').item.json;\nconst raw = ($json.message?.content || $json.response || $json.text || '').toLowerCase().replace(/_/g, ' ');\n\nconst validOutcomes = ['not_interested','callback_requested','strong_interest','appointment_set','dnc','no_signal'];\nconst outcome = (validOutcomes.find(o => raw.includes(o.replace(/_/g,' '))) || 'no_signal').replace(/ /g,'_');\n\nconst patch_body = JSON.stringify({\n  analysis_flags: analysis.flags,\n  analysis_summary: {\n    compliance_pass: !analysis.has_compliance_issue,\n    agent_sentiment_ok: analysis.agent_sentiment_ok,\n    outcome,\n    flag_count: analysis.flags.length\n  },\n  analyzed_at: analysis.analyzed_at\n});\n\nreturn [{ json: { call_key: analysis.call_key, patch_body } }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
