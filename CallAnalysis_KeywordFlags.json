@@ -2,30 +2,55 @@
   "name": "CallAnalysis_KeywordFlags",
   "nodes": [
     {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        992,
+        576
+      ],
+      "id": "c5caa20d-15ee-4ac9-8572-a0580cc7af1a",
+      "name": "When clicking 'Execute workflow'"
+    },
+    {
       "parameters": {
         "url": "https://rgxmzdwatkgxgzdpmskj.supabase.co/rest/v1/ytel_call_transcripts?analyzed_at=is.null&transcription_status=eq.completed&select=call_key,agent_name,call_date,utterances",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey",        "value": "sb_secret_UQ-Vj8piN3jJ_mdqqYJ27w_wQfph-Cr" },
-            { "name": "Authorization", "value": "Bearer sb_secret_UQ-Vj8piN3jJ_mdqqYJ27w_wQfph-Cr" }
+            {
+              "name": "apikey",
+              "value": "sb_secret_UQ-Vj8piN3jJ_mdqqYJ27w_wQfph-Cr"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer sb_secret_UQ-Vj8piN3jJ_mdqqYJ27w_wQfph-Cr"
+            }
           ]
         },
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
-      "position": [256, 0],
-      "id": "452f1011-693f-459e-bf34-8eea9dce68db",
+      "position": [
+        1424,
+        576
+      ],
+      "id": "7c0c4916-c1de-44d2-a892-9ad483dc3bda",
       "name": "Fetch Unanalyzed Calls1",
       "onError": "continueRegularOutput"
     },
     {
-      "parameters": { "options": {} },
+      "parameters": {
+        "options": {}
+      },
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
-      "position": [496, 0],
-      "id": "094f2a5a-3feb-4745-bbb5-2370e19e5bff",
+      "position": [
+        1664,
+        576
+      ],
+      "id": "a6faa6ab-fe05-4474-a5fd-372f95d11026",
       "name": "Loop Over Calls1"
     },
     {
@@ -34,16 +59,25 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey",        "value": "sb_secret_UQ-Vj8piN3jJ_mdqqYJ27w_wQfph-Cr" },
-            { "name": "Authorization", "value": "Bearer sb_secret_UQ-Vj8piN3jJ_mdqqYJ27w_wQfph-Cr" }
+            {
+              "name": "apikey",
+              "value": "sb_secret_UQ-Vj8piN3jJ_mdqqYJ27w_wQfph-Cr"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer sb_secret_UQ-Vj8piN3jJ_mdqqYJ27w_wQfph-Cr"
+            }
           ]
         },
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
-      "position": [736, 0],
-      "id": "e4b905b9-9ea4-4998-92df-e7847f91b448",
+      "position": [
+        1904,
+        576
+      ],
+      "id": "d3d87c3c-c49c-40ac-8a2c-7246e0b4c36f",
       "name": "Fetch Rules1",
       "onError": "continueRegularOutput"
     },
@@ -53,8 +87,11 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [976, 0],
-      "id": "7aaeb6ed-dc27-4630-af8f-c0c86038f120",
+      "position": [
+        2144,
+        576
+      ],
+      "id": "a0ec45fb-e732-479f-8293-d5e5f7a9efa8",
       "name": "Analyze Call1"
     },
     {
@@ -76,8 +113,11 @@
       },
       "type": "@n8n/n8n-nodes-langchain.ollama",
       "typeVersion": 1,
-      "position": [1168, -160],
-      "id": "fb320826-4ee0-4134-ada5-3edc3eeae695",
+      "position": [
+        2336,
+        416
+      ],
+      "id": "a9465810-5d73-490f-9aed-005a3763b111",
       "name": "Message a model",
       "credentials": {
         "ollamaApi": {
@@ -92,8 +132,11 @@
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1456, 0],
-      "id": "e008e33b-b6b9-4792-8b8c-a4637f9b18e9",
+      "position": [
+        2624,
+        576
+      ],
+      "id": "d73216c8-bdfc-413f-94ec-07b97565c80d",
       "name": "Merge Outcome1"
     },
     {
@@ -103,62 +146,131 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey",        "value": "sb_secret_UQ-Vj8piN3jJ_mdqqYJ27w_wQfph-Cr" },
-            { "name": "Authorization", "value": "Bearer sb_secret_UQ-Vj8piN3jJ_mdqqYJ27w_wQfph-Cr" },
-            { "name": "Content-Type",  "value": "application/json" },
-            { "name": "Prefer",        "value": "return=minimal" }
+            {
+              "name": "apikey",
+              "value": "sb_secret_UQ-Vj8piN3jJ_mdqqYJ27w_wQfph-Cr"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer sb_secret_UQ-Vj8piN3jJ_mdqqYJ27w_wQfph-Cr"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
           ]
         },
         "sendBody": true,
-        "contentType": "rawBody",
+        "contentType": "raw",
         "rawContentType": "application/json",
-        "body": "={{ $json.patch_body }}",
+        "body": "=={{ $json.patch_body }}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
-      "position": [1696, 0],
-      "id": "b73d59c4-c798-4488-a034-9f000e322888",
+      "position": [
+        2864,
+        576
+      ],
+      "id": "35013f52-8048-4d1d-9f1d-df75b60282bf",
       "name": "Update Supabase Row1",
       "onError": "continueRegularOutput"
-    },
-    {
-      "parameters": {},
-      "type": "n8n-nodes-base.manualTrigger",
-      "typeVersion": 1,
-      "position": [0, 0],
-      "id": "ae5e3c1e-b136-40ef-916c-0d2c4507f757",
-      "name": "When clicking 'Execute workflow'"
     }
   ],
   "pinData": {},
   "connections": {
     "When clicking 'Execute workflow'": {
-      "main": [[{ "node": "Fetch Unanalyzed Calls1", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Fetch Unanalyzed Calls1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Fetch Unanalyzed Calls1": {
-      "main": [[{ "node": "Loop Over Calls1", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Loop Over Calls1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Loop Over Calls1": {
       "main": [
         [],
-        [{ "node": "Fetch Rules1", "type": "main", "index": 0 }]
+        [
+          {
+            "node": "Fetch Rules1",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     },
     "Fetch Rules1": {
-      "main": [[{ "node": "Analyze Call1", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Analyze Call1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Analyze Call1": {
-      "main": [[{ "node": "Message a model", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Message a model": {
-      "main": [[{ "node": "Merge Outcome1", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Merge Outcome1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Merge Outcome1": {
-      "main": [[{ "node": "Update Supabase Row1", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Update Supabase Row1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Update Supabase Row1": {
-      "main": [[{ "node": "Loop Over Calls1", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Loop Over Calls1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
@@ -166,7 +278,7 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "7586bd5a-a313-468d-a352-0af430876fd4",
+  "versionId": "4e80437e-05f1-4309-9f1f-1089ea638c4a",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "07dd4f143144583eff56c81a9a77b4e0a223bff7e3e5b44f2df482de13037f17"
