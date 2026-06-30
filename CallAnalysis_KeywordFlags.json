@@ -70,7 +70,7 @@
     {
       "parameters": {
         "method": "PATCH",
-        "url": "={{ 'https://rgxmzdwatkgxgzdpmskj.supabase.co/rest/v1/ytel_call_transcripts?call_key=eq.' + $json.call_key }}",
+        "url": "=https://rgxmzdwatkgxgzdpmskj.supabase.co/rest/v1/ytel_call_transcripts?call_key=eq.{{ $json.call_key }}",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -83,7 +83,7 @@
         "sendBody": true,
         "contentType": "rawBody",
         "rawContentType": "application/json",
-        "body": "={{ JSON.stringify({ analysis_flags: $json.analysis_flags, analysis_summary: $json.analysis_summary, analyzed_at: $json.analyzed_at }) }}",
+        "body": "={{ JSON.stringify({ analysis_flags: JSON.parse(JSON.stringify($json.analysis_flags)), analysis_summary: $json.analysis_summary, analyzed_at: $json.analyzed_at }) }}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
